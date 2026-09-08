@@ -96,32 +96,24 @@ public class GerenciadorArmadilhas : MonoBehaviour
     private void LigarLaser()
     {
         if (colisorLaser != null) colisorLaser.enabled = true;
-        if (anim != null) anim.SetBool("Ativado", true);
+        if (anim != null) anim.SetBool("ativado", true);
     }
 
     private void DesligarLaser()
     {
         if (colisorLaser != null) colisorLaser.enabled = false;
-        if (anim != null) anim.SetBool("Ativado", false);
+        if (anim != null) anim.SetBool("ativado", false);
     }
 
     // --- SISTEMA DE DANO E MORTE ---
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            Destroy(collision.gameObject);
-            Invoke("ReiniciarCena", 2f);
-        }
+        ProcessarMorte(collision.gameObject);
     }
 
     private void OnTriggerEnter2D(Collider2D collider)
     {
-        if (collider.gameObject.CompareTag("Player"))
-        {
-            Destroy(collider.gameObject);
-            Invoke("ReiniciarCena", 2f);
-        }
+        ProcessarMorte(collider.gameObject);
     }
 
     private void ProcessarMorte(GameObject objetoAtingido)

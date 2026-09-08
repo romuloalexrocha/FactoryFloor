@@ -170,4 +170,4 @@ MonoBehaviour:
   tempoAtivo: 2
   tempoInativo: 1.5
   atrasoInicial: 0
-  colisorLaser: {fileID: 0}
+  colisorLaser: {fileID: 5482739966118765687}

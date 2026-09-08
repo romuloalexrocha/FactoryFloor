@@ -9,7 +9,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: Ativado
+    m_ConditionEvent: ativado
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 8426436099473342145}
@@ -59,7 +59,7 @@ AnimatorController:
   m_Name: Obstaculo_TorretaLaser
   serializedVersion: 5
   m_AnimatorParameters:
-  - m_Name: Ativado
+  - m_Name: ativado
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
@@ -141,7 +141,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 2
-    m_ConditionEvent: Ativado
+    m_ConditionEvent: ativado
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 7136709423006597618}

@@ -9,7 +9,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 2
-    m_ConditionEvent: Ativado
+    m_ConditionEvent: ativado
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -5880892743958940521}
@@ -61,7 +61,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: Ativado
+    m_ConditionEvent: ativado
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 5416386173533118276}
@@ -111,7 +111,7 @@ AnimatorController:
   m_Name: Obstaculo_Torreta
   serializedVersion: 5
   m_AnimatorParameters:
-  - m_Name: Ativado
+  - m_Name: ativado
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0

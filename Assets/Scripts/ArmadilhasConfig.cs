@@ -30,12 +30,12 @@ public class ArmadilhasConfig : MonoBehaviour
     void Start()
     {
         // Inicialização de componentes
-        if(animator == null) animator = GetComponent<Animator>();
-        if(colisorDano == null) colisorDano = GetComponent<Collider2D>();
+        if (animator == null) animator = GetComponent<Animator>();
+        if (colisorDano == null) colisorDano = GetComponent<Collider2D>();
 
         // Lógica de atraso do comportamento: se houver algum valor de atraso,
         // alteramos o valor de emAtraso para true e desligamos as armadilhas.
-        if(atrasoInicial > 0)
+        if (atrasoInicial > 0)
         {
             emAtraso = true;
             DesligarEspeto();
@@ -50,15 +50,15 @@ public class ArmadilhasConfig : MonoBehaviour
         switch (tipo)
         {
             case TipoArmadilha.Espeto:
-                Debug.Log("Selecionado: Espeto");
+                //Debug.Log("Selecionado: Espeto");
                 AtualizarEspeto();
                 break;
             case TipoArmadilha.Torreta:
-                Debug.Log("Selecionado: Torreta");
+                //Debug.Log("Selecionado: Torreta");
                 AtualizarTorreta();
                 break;
             default:
-                Debug.Log("Selecionado: Nada (Default)");
+                //Debug.Log("Selecionado: Nada (Default)");
                 break;
         }
     }
@@ -71,50 +71,77 @@ public class ArmadilhasConfig : MonoBehaviour
         if (emAtraso)
         {
             cronometro += Time.deltaTime; // Incrementamos o tempo até chegar ao valor de atrasoInicial
-            if(cronometro >= atrasoInicial)
+            if (cronometro >= atrasoInicial)
             {
                 // Mudamos o valor de emAtraso e zeramos o crnômetro
                 emAtraso = false;
                 cronometro = 0f;
+                // Acionamos animação Spike_Ativado
+                DefinirAnimacao(1);
             }
             return; // saímos do if
         } // end if emAtraso
 
-        // Animação inicial ativando o Espeto, a executar depois do atraso
-        animator.SetInteger("estado", 1);
-
         // Lógica do ciclo de vida do Espeto
         cronometro += Time.deltaTime;
-        float cicloTotal = tempoAtivo + tempoInativo;
-        Debug.Log($"cicloTotal = " + cicloTotal);
+        // Pega o estado atual do Animator, se ele existir. Caso contrário, retorna -1
+        int estadoAtual = animator != null ? animator.GetInteger("estado") : 0;
+        //float cicloTotal = tempoAtivo + tempoInativo;
 
-        if (cronometro < tempoAtivo)
+        switch (estadoAtual)
         {
-            LigarEspeto();
+            case 0: // Spike_Recolhido
+                if (cronometro >= tempoInativo)
+                {
+                    cronometro = 0f;
+                    DefinirAnimacao(1);
+                }
+                break;
+            case 1: // Spike_Ativado
+                // Verifica se a animação Spike_Ativado terminou de tocar (normalizedTime >= 1.0)
+                if (animator != null && animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1.0f)
+                {
+                    cronometro = 0f;
+                    LigarEspeto();
+                }
+                break;
+            case 2: // Spike_Ligado
+                if (cronometro >= tempoAtivo)
+                {
+                    cronometro = 0f;
+                    DesligarEspeto();
+                }
+                break;
+            case 3: // Spike_Desligado
+                // Verifica se a animação Spike_Desativado terminou de tocar (normalizedTime >= 1.0)
+                if (animator != null && animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1.0f)
+                {
+                    cronometro = 0f;
+                    DefinirAnimacao(0); // Volta para Spike_Recolhido
+                }
+                break;
+            default:
+                break;
         }
-        else if (cronometro < cicloTotal)
-        {
-            DesligarEspeto();
-        }
-        else
-        {
-            cronometro = 0f;
-            animator.SetInteger("estado", 0);
-        }
+    }
+
+    private void DefinirAnimacao(int novoEstado)
+    {
+        if (animator != null) animator.SetInteger("estado", novoEstado);
     }
 
     private void LigarEspeto()
     {
-        Debug.Log($"Chamando método LigarEspeto. Cronômetro: {cronometro}");
+        // Debug.Log($"Chamando método LigarEspeto. Cronômetro: {cronometro}");
         if (colisorDano != null) colisorDano.enabled = true;
-        if (animator != null) animator.SetInteger("estado", 2);
+        if (animator != null) DefinirAnimacao(2);
     }
 
     private void DesligarEspeto()
     {
-        Debug.Log($"Chamando método DesligarEspeto. Cronômetro: {cronometro}");
+        // Debug.Log($"Chamando método DesligarEspeto. Cronômetro: {cronometro}");
         if (colisorDano != null) colisorDano.enabled = false;
-        if (animator != null) animator.SetInteger("estado", 3);
+        if (animator != null) DefinirAnimacao(3);
     }
 
     private void AtualizarTorreta()

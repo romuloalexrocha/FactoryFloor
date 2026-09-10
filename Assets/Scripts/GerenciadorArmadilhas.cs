@@ -33,10 +33,16 @@ public class GerenciadorArmadilhas : MonoBehaviour
         if (colisorLaser == null) colisorLaser = GetComponent<Collider2D>();
 
         // Se houver atraso inicial configurado, começa o laser desligado
-        if (tipo == TipoObstaculo.Laser && atrasoInicial > 0)
+        if (tipo == TipoObstaculo.Laser)
         {
-            emAtraso = true;
+            if (colisorLaser != null) colisorLaser.enabled = false;
             DesligarLaser();
+
+            if (atrasoInicial > 0)
+            {
+                emAtraso = true;
+                cronometro = 0f; // Zera o cronômetro para iniciar o atraso
+            }
         }
     }
 
@@ -94,14 +100,19 @@ public class GerenciadorArmadilhas : MonoBehaviour
 
     private void LigarLaser()
     {
-        if (colisorLaser != null) colisorLaser.enabled = true;
+        // if (colisorLaser != null) colisorLaser.enabled = true;
         if (anim != null) anim.SetBool("ativado", true);
     }
 
     private void DesligarLaser()
     {
-        if (colisorLaser != null) colisorLaser.enabled = false;
+        // if (colisorLaser != null) colisorLaser.enabled = false;
         if (anim != null) anim.SetBool("ativado", false);
+    }
+
+    public void TrocarEstadoColisorLaser()
+    {
+        if (colisorLaser != null) colisorLaser.enabled = !colisorLaser.enabled;
     }
 
     // --- SISTEMA DE DANO E MORTE ---

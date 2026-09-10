@@ -160,6 +160,12 @@ public class ArmadilhasConfig : MonoBehaviour
         // Pega o estado atual do Animator, se ele existir. Caso contrário, retorna 0
         int estadoAtual = animator != null ? animator.GetInteger("estado") : 0;
 
+        //if (animator != null && tempoEntreDisparos != 0f)
+        //{
+        //    // Exemplo: velocidade inversamente proporcional ao tempoEntreDisparos
+        //    animator.speed = 1f / tempoEntreDisparos;
+        //}
+
         switch (estadoAtual)
         {
             case 0: // Torreta_Aguardando
@@ -170,11 +176,10 @@ public class ArmadilhasConfig : MonoBehaviour
                 }
                 break;
             case 1: // Torreta_Disparando
-                // Verifica se a animação Torreta_Disparando terminou de tocar (normalizedTime >= 1.0)
-                if (animator != null && animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1.0f)
+                if (cronometro >= tempoEntreDisparos)
                 {
                     cronometro = 0f;
-                    DefinirAnimacao(0);
+                    // DefinirAnimacao(1);
                 }
                 break;
             default:

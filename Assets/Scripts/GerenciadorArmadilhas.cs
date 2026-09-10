@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public enum TipoObstaculo { Serra, Laser }
 
@@ -120,13 +119,8 @@ public class GerenciadorArmadilhas : MonoBehaviour
     {
         if (objetoAtingido.CompareTag("Player"))
         {
-            Destroy(objetoAtingido);
-            Invoke(nameof(ReiniciarCena), 2f);
+            // Tenta chamar o método de morte no próprio Player
+            objetoAtingido.SendMessage("HoraDeMorrer", SendMessageOptions.DontRequireReceiver);
         }
-    }
-
-    private void ReiniciarCena()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

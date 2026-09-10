@@ -1,3 +1,11 @@
+/*
+ * 
+ * SENAI - Serviço Nacional de Aprendizagem Industrial
+ * Atividade Prática - Programando Armadilhas
+ * Rômulo Alexandre da Rocha
+ * 
+ */
+
 using UnityEngine;
 
 public class ArmadilhasConfig : MonoBehaviour
@@ -16,11 +24,11 @@ public class ArmadilhasConfig : MonoBehaviour
     [SerializeField] private float tempoAtivo; // tempo com os espetos para fora
     [SerializeField] private float tempoInativo; // tempo com os espetos recolhidos
 
-    //[Header("Configurações da Torreta")]
-    //[SerializeField] private float tempoEntreDisparos;
-    //[SerializeField] private GameObject prefabProjetil;
-    //[SerializeField] private Vector2 pontoDisparo;
-    //[SerializeField] private float velocidadeProjetil;
+    [Header("Configurações da Torreta")]
+    [SerializeField] private float tempoEntreDisparos;
+    [SerializeField] private GameObject prefabProjetil;
+    [SerializeField] private Transform pontoDisparo;
+    [SerializeField] private float velocidadeProjetil;
 
     // Variáveis de controle
     private float cronometro;
@@ -38,8 +46,8 @@ public class ArmadilhasConfig : MonoBehaviour
         if (atrasoInicial > 0)
         {
             emAtraso = true;
-            DesligarEspeto();
-            DesligarTorreta();
+            DefinirEstadoColisor(false);
+            DefinirAnimacao(0); // Definimos a animação inicial como Spike_Recolhido ou Torreta_Idle
         }
     }
 
@@ -77,6 +85,7 @@ public class ArmadilhasConfig : MonoBehaviour
                 emAtraso = false;
                 cronometro = 0f;
                 // Acionamos animação Spike_Ativado
+                DefinirEstadoColisor(true);
                 DefinirAnimacao(1);
             }
             return; // saímos do if
@@ -84,7 +93,7 @@ public class ArmadilhasConfig : MonoBehaviour
 
         // Lógica do ciclo de vida do Espeto
         cronometro += Time.deltaTime;
-        // Pega o estado atual do Animator, se ele existir. Caso contrário, retorna -1
+        // Pega o estado atual do Animator, se ele existir. Caso contrário, retorna 0
         int estadoAtual = animator != null ? animator.GetInteger("estado") : 0;
         //float cicloTotal = tempoAtivo + tempoInativo;
 
@@ -94,6 +103,7 @@ public class ArmadilhasConfig : MonoBehaviour
                 if (cronometro >= tempoInativo)
                 {
                     cronometro = 0f;
+                    DefinirEstadoColisor(true);
                     DefinirAnimacao(1);
                 }
                 break;
@@ -102,14 +112,14 @@ public class ArmadilhasConfig : MonoBehaviour
                 if (animator != null && animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1.0f)
                 {
                     cronometro = 0f;
-                    LigarEspeto();
+                    DefinirAnimacao(2);
                 }
                 break;
             case 2: // Spike_Ligado
                 if (cronometro >= tempoAtivo)
                 {
                     cronometro = 0f;
-                    DesligarEspeto();
+                    DefinirAnimacao(3);
                 }
                 break;
             case 3: // Spike_Desligado
@@ -117,7 +127,54 @@ public class ArmadilhasConfig : MonoBehaviour
                 if (animator != null && animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1.0f)
                 {
                     cronometro = 0f;
+                    DefinirEstadoColisor(false);
                     DefinirAnimacao(0); // Volta para Spike_Recolhido
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void AtualizarTorreta()
+    {
+        // Lógica do atraso inicial
+        // Só executa esse if se emAtraso for true - ou seja, quando houver
+        // algum valor em atrasoInicial
+        if (emAtraso)
+        {
+            cronometro += Time.deltaTime; // Incrementamos o tempo até chegar ao valor de atrasoInicial
+            if (cronometro >= atrasoInicial)
+            {
+                // Mudamos o valor de emAtraso e zeramos o crnômetro
+                emAtraso = false;
+                cronometro = 0f;
+                // Acionamos animação Torreta_Disparando
+                DefinirAnimacao(1);
+            }
+            return; // saímos do if
+        } // end if emAtraso
+
+        // Lógica do ciclo de vida do Espeto
+        cronometro += Time.deltaTime;
+        // Pega o estado atual do Animator, se ele existir. Caso contrário, retorna 0
+        int estadoAtual = animator != null ? animator.GetInteger("estado") : 0;
+
+        switch (estadoAtual)
+        {
+            case 0: // Torreta_Aguardando
+                if (cronometro >= tempoEntreDisparos)
+                {
+                    cronometro = 0f;
+                    DefinirAnimacao(1);
+                }
+                break;
+            case 1: // Torreta_Disparando
+                // Verifica se a animação Torreta_Disparando terminou de tocar (normalizedTime >= 1.0)
+                if (animator != null && animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1.0f)
+                {
+                    cronometro = 0f;
+                    DefinirAnimacao(0);
                 }
                 break;
             default:
@@ -130,28 +187,44 @@ public class ArmadilhasConfig : MonoBehaviour
         if (animator != null) animator.SetInteger("estado", novoEstado);
     }
 
-    private void LigarEspeto()
+    private void DefinirEstadoColisor(bool novoEstado)
     {
-        // Debug.Log($"Chamando método LigarEspeto. Cronômetro: {cronometro}");
-        if (colisorDano != null) colisorDano.enabled = true;
-        if (animator != null) DefinirAnimacao(2);
+        if (colisorDano != null) colisorDano.enabled = novoEstado;
     }
 
-    private void DesligarEspeto()
+    public void DispararProjetil()
     {
-        // Debug.Log($"Chamando método DesligarEspeto. Cronômetro: {cronometro}");
-        if (colisorDano != null) colisorDano.enabled = false;
-        if (animator != null) DefinirAnimacao(3);
+        if (prefabProjetil != null)
+        {
+            GameObject projetil = Instantiate(prefabProjetil, pontoDisparo.position, pontoDisparo.rotation);
+            Rigidbody2D rb = projetil.GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                SpriteRenderer sprite = GetComponent<SpriteRenderer>(); // Pegamos o SpriteRenderer do objeto atual (a torreta)
+                float direcao = (sprite != null && sprite.flipX) ? 1f : -1f; // Determina a direção com base no flipX do sprite
+                rb.linearVelocity = new Vector2(velocidadeProjetil * direcao, 0f); // Define a velocidade do projetil na direção correta
+            }
+        }
     }
 
-    private void AtualizarTorreta()
+    // --- SISTEMA DE DANO E MORTE ---
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-
+        if (tipo == TipoArmadilha.Espeto) ProcessarMorte(collision.gameObject);
     }
 
-    private void DesligarTorreta()
+    private void OnTriggerEnter2D(Collider2D collider)
     {
+        if (tipo == TipoArmadilha.Espeto) ProcessarMorte(collider.gameObject);
+    }
 
+    private void ProcessarMorte(GameObject objetoAtingido)
+    {
+        if (objetoAtingido.CompareTag("Player"))
+        {
+            // Tenta chamar o método de morte no próprio Player
+            objetoAtingido.SendMessage("HoraDeMorrer", SendMessageOptions.DontRequireReceiver);
+        }
     }
 
 }

@@ -14,6 +14,7 @@ public class ArmadilhasConfig : MonoBehaviour
 
     [Header("Configuração da Armadilha")] // Header: cabeçalho para mostrar no Inspector da Unity
     [SerializeField] private TipoArmadilha tipo = TipoArmadilha.Espeto;
+    [SerializeField] private int quantidadeDano = 1;
 
     [Header("Configurações Gerais")]
     [SerializeField] private Animator animator;
@@ -63,6 +64,7 @@ public class ArmadilhasConfig : MonoBehaviour
                 break;
             case TipoArmadilha.Torreta:
                 //Debug.Log("Selecionado: Torreta");
+                if(quantidadeDano <= 2) quantidadeDano = 2;
                 AtualizarTorreta();
                 break;
             default:
@@ -203,11 +205,17 @@ public class ArmadilhasConfig : MonoBehaviour
         {
             GameObject projetil = Instantiate(prefabProjetil, pontoDisparo.position, pontoDisparo.rotation);
             Rigidbody2D rb = projetil.GetComponent<Rigidbody2D>();
+            ComportamentoProjetil scriptProjetil = projetil.GetComponent<ComportamentoProjetil>();
             if (rb != null)
             {
                 SpriteRenderer sprite = GetComponent<SpriteRenderer>(); // Pegamos o SpriteRenderer do objeto atual (a torreta)
                 float direcao = (sprite != null && sprite.flipX) ? 1f : -1f; // Determina a direção com base no flipX do sprite
                 rb.linearVelocity = new Vector2(velocidadeProjetil * direcao, 0f); // Define a velocidade do projetil na direção correta
+            }
+
+            if(scriptProjetil != null)
+            {
+                scriptProjetil.ConfigurarDano(quantidadeDano);
             }
         }
     }
@@ -228,7 +236,7 @@ public class ArmadilhasConfig : MonoBehaviour
         if (objetoAtingido.CompareTag("Player"))
         {
             // Tenta chamar o método de morte no próprio Player
-            objetoAtingido.SendMessage("HoraDeMorrer", SendMessageOptions.DontRequireReceiver);
+            objetoAtingido.SendMessage("HoraDeMorrer", quantidadeDano, SendMessageOptions.DontRequireReceiver);
         }
     }
 

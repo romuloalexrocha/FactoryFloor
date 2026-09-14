@@ -1,11 +1,12 @@
 using UnityEngine;
 
-public enum TipoObstaculo { Serra, Laser }
+public enum TipoObstaculo { Serra, Laser, LaserSimples }
 
 public class GerenciadorArmadilhas : MonoBehaviour
 {
     [Header("Configuração Geral")]
     [SerializeField] private TipoObstaculo tipo = TipoObstaculo.Serra;
+    [SerializeField] private int quantidadeDano = 1;
 
     [Header("⚙️ Configurações da Serra")]
     [SerializeField] private float distancia = 4f;
@@ -51,10 +52,15 @@ public class GerenciadorArmadilhas : MonoBehaviour
         switch (tipo)
         {
             case TipoObstaculo.Serra:
+                if(quantidadeDano <= 3) quantidadeDano = 3;
                 AtualizarSerra();
                 break;
 
             case TipoObstaculo.Laser:
+                if(quantidadeDano <= 2) quantidadeDano = 2;
+                AtualizarLaser();
+                break;
+            case TipoObstaculo.LaserSimples:
                 AtualizarLaser();
                 break;
         }
@@ -131,7 +137,7 @@ public class GerenciadorArmadilhas : MonoBehaviour
         if (objetoAtingido.CompareTag("Player"))
         {
             // Tenta chamar o método de morte no próprio Player
-            objetoAtingido.SendMessage("HoraDeMorrer", SendMessageOptions.DontRequireReceiver);
+            objetoAtingido.SendMessage("HoraDeMorrer", quantidadeDano, SendMessageOptions.DontRequireReceiver);
         }
     }
 }

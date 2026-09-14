@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
@@ -16,6 +15,7 @@ public class ControleJogador2D : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private float moveInputX;
     private bool estaNoChao;
+    // public int vida = 5;
 
     private void Awake()
     {
@@ -71,25 +71,5 @@ public class ControleJogador2D : MonoBehaviour
         {
             spriteRenderer.flipX = true; // Olhando para a esquerda
         }
-    }
-
-    public void HoraDeMorrer()
-    {
-        // 1. Esconde a arte e desativa colisão/física
-        SpriteRenderer sprite = GetComponent<SpriteRenderer>();
-        Collider2D colisor = GetComponent<Collider2D>();
-        Rigidbody2D rb = GetComponent<Rigidbody2D>();
-
-        if (sprite != null) sprite.enabled = false;
-        if (colisor != null) colisor.enabled = false;
-        if (rb != null) rb.simulated = false;
-
-        // 2. O próprio Player agenda o recarregamento da cena (não depende de nenhum outro objeto)
-        Invoke(nameof(ReiniciarCena), 2f);
-    }
-
-    private void ReiniciarCena()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

@@ -78,6 +78,29 @@ public class ComportamentoPlayer : MonoBehaviour
         }
     }
 
+    public void HoraDeCurar(int cura)
+    {
+        vida = ReceberCura(cura);
+
+        if (vida >= 10)
+            vida = 10;
+
+        // Atualização do HUD de texto
+        VidaHUD vidaHud = FindAnyObjectByType<VidaHUD>();
+        if (vidaHud != null)
+        {
+            vidaHud.AtualizarTextoVida();
+        }
+        // Debug.Log($"VIDAS: {vida}");
+
+        // Atualização do HUD de corações
+        CoracoesHUD coracoesHud = FindAnyObjectByType<CoracoesHUD>();
+        if (coracoesHud != null)
+        {
+            coracoesHud.AtualizarCoracoes();
+        }
+    }
+
     private bool EstaImune()
     {
         // Retorna true se o tempo atual ainda estiver dentro da janela de imunidade
@@ -103,6 +126,11 @@ public class ComportamentoPlayer : MonoBehaviour
     private int ReceberDano(int dano)
     {
         return vida - dano;
+    }
+
+    private int ReceberCura(int cura)
+    {
+        return vida + cura;
     }
 
     private void ExecutarMorte()

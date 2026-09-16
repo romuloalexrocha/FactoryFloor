@@ -30,6 +30,8 @@ public class ArmadilhasConfig : MonoBehaviour
     [SerializeField] private GameObject prefabProjetil;
     [SerializeField] private Transform pontoDisparo;
     [SerializeField] private float velocidadeProjetil;
+    [SerializeField] private AudioClip somDisparo;
+    private AudioSource audioSource;
 
     // Variáveis de controle
     private float cronometro;
@@ -41,6 +43,7 @@ public class ArmadilhasConfig : MonoBehaviour
         // Inicialização de componentes
         if (animator == null) animator = GetComponent<Animator>();
         if (colisorDano == null) colisorDano = GetComponent<Collider2D>();
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
 
         // Lógica de atraso do comportamento: se houver algum valor de atraso,
         // alteramos o valor de emAtraso para true e desligamos as armadilhas.
@@ -204,18 +207,23 @@ public class ArmadilhasConfig : MonoBehaviour
         if (prefabProjetil != null)
         {
             GameObject projetil = Instantiate(prefabProjetil, pontoDisparo.position, pontoDisparo.rotation);
-            Rigidbody2D rb = projetil.GetComponent<Rigidbody2D>();
+            Rigidbody2D rbProjetil = projetil.GetComponent<Rigidbody2D>();
             ComportamentoProjetil scriptProjetil = projetil.GetComponent<ComportamentoProjetil>();
-            if (rb != null)
+            if (rbProjetil != null)
             {
                 SpriteRenderer sprite = GetComponent<SpriteRenderer>(); // Pegamos o SpriteRenderer do objeto atual (a torreta)
                 float direcao = (sprite != null && sprite.flipX) ? 1f : -1f; // Determina a direção com base no flipX do sprite
-                rb.linearVelocity = new Vector2(velocidadeProjetil * direcao, 0f); // Define a velocidade do projetil na direção correta
+                rbProjetil.linearVelocity = new Vector2(velocidadeProjetil * direcao, 0f); // Define a velocidade do projetil na direção correta
             }
 
             if(scriptProjetil != null)
             {
                 scriptProjetil.ConfigurarDano(quantidadeDano);
+            }
+
+            if(audioSource != null && somDisparo != null)
+            {
+                audioSource.PlayOneShot(somDisparo);
             }
         }
     }

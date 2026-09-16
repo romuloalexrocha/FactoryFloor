@@ -10,11 +10,18 @@ public class ControleJogador2D : MonoBehaviour
     [SerializeField] private float moveSpeed = 7f;
     [SerializeField] private float jumpForce = 12f;
 
+    [Header("Efeitos Sonoros do Jogador")]
+    [SerializeField] private AudioClip somPulo;
+    [SerializeField] private AudioClip somPassos;
+    [SerializeField] private float intervaloPassos = 0.35f; // Intervalo entre os sons de passos
+
     private Rigidbody2D rb;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
+    private AudioSource audioSource;
     private float moveInputX;
     private bool estaNoChao;
+    private float timerPassos;
     // public int vida = 5;
 
     private void Awake()
@@ -22,6 +29,7 @@ public class ControleJogador2D : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Método disparado pelo Player Input (Action: Move)
@@ -38,6 +46,7 @@ public class ControleJogador2D : MonoBehaviour
         if (value.isPressed && estaNoChao)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            TocarSomPulo();
             estaNoChao = false; // Força a saída do chão imediatamente no frame do pulo
         }
     }
@@ -53,6 +62,24 @@ public class ControleJogador2D : MonoBehaviour
 
         // Inverte a direção do sprite
         InverterSprite();
+
+        // Lógica dos passos: toca o som de passos apenas se estiver andando e no chão
+        if(Mathf.Abs(moveInputX) > 0.1f && estaNoChao)
+        {
+            timerPassos += Time.deltaTime;
+            if (timerPassos >= intervaloPassos)
+            {
+                if(somPassos != null && audioSource != null)
+                {
+                    audioSource.PlayOneShot(somPassos);
+                }
+                timerPassos = 0f;
+            }
+        }
+        else
+        {
+            timerPassos = intervaloPassos; // Reseta o timer para tocar o som imediatamente ao começar a andar
+        }
     }
 
     private void FixedUpdate()
@@ -70,6 +97,14 @@ public class ControleJogador2D : MonoBehaviour
         else if (moveInputX < -0.1f)
         {
             spriteRenderer.flipX = true; // Olhando para a esquerda
+        }
+    }
+
+    public void TocarSomPulo()
+    {
+        if (somPulo != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(somPulo);
         }
     }
 }

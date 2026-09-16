@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -18,6 +19,12 @@ public class ComportamentoPlayer : MonoBehaviour
     [SerializeField] private Color corDano = Color.red; // Cor do sprite durante a imunidade
     private float tempoUltimoDano = -999f; // Inicializa com um valor negativo para permitir dano imediato
 
+    [Header("Efeitos de Som")]
+    [SerializeField] private AudioClip somMorte;
+    [SerializeField] private AudioClip somCura;
+    private AudioSource audioS;
+
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -25,6 +32,7 @@ public class ComportamentoPlayer : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         col = GetComponent<Collider2D>();
+        audioS = GetComponent<AudioSource>();
         // posicaoInicial = rb.position;
 
         // Armazena a cor original do sprite para restaurar após o efeito de dano
@@ -80,6 +88,8 @@ public class ComportamentoPlayer : MonoBehaviour
 
     public void HoraDeCurar(int cura)
     {
+        TocarSomCura(); // Toca o som de cura
+
         vida = ReceberCura(cura);
 
         if (vida >= 10)
@@ -135,6 +145,8 @@ public class ComportamentoPlayer : MonoBehaviour
 
     private void ExecutarMorte()
     {
+        TocarSomMorte();
+
         estaMorto = true; // Marca o player como morto para evitar efeitos de dano adicionais
 
         // 1. Esconde a arte e desativa colisão/física
@@ -146,6 +158,21 @@ public class ComportamentoPlayer : MonoBehaviour
         Invoke(nameof(ReiniciarCena), 3f);
     }
 
+    private void TocarSomMorte()
+    {
+        if (audioS != null && somMorte != null)
+        {
+            audioS.PlayOneShot(somMorte);
+        }
+    }
+
+    private void TocarSomCura()
+    {
+        if (audioS != null && somCura != null)
+        {
+            audioS.PlayOneShot(somCura);
+        }
+    }
     private void ReiniciarCena()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);

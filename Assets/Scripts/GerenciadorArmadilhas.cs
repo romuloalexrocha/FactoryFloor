@@ -17,6 +17,8 @@ public class GerenciadorArmadilhas : MonoBehaviour
     [SerializeField] private float tempoInativo = 1.5f; // Duração do laser desligado
     [SerializeField] private float atrasoInicial = 0f;  // ⏱️ Tempo de espera ANTES de iniciar o ritmo
     [SerializeField] private Collider2D colisorLaser;
+    [SerializeField] private AudioClip somDisparo;
+    private AudioSource audioSource;
 
     private Vector3 posInicial;
     private float cronometro;
@@ -25,10 +27,11 @@ public class GerenciadorArmadilhas : MonoBehaviour
 
     private void Start()
     {
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
         posInicial = transform.position;
 
         // Pega o Animator do próprio objeto
-        anim = GetComponent<Animator>();
+        if (anim == null) anim = GetComponent<Animator>();
 
         // Busca o colisor se não for atribuído no Inspector
         if (colisorLaser == null) colisorLaser = GetComponent<Collider2D>();
@@ -52,12 +55,12 @@ public class GerenciadorArmadilhas : MonoBehaviour
         switch (tipo)
         {
             case TipoObstaculo.Serra:
-                if(quantidadeDano <= 3) quantidadeDano = 3;
+                if (quantidadeDano <= 3) quantidadeDano = 3;
                 AtualizarSerra();
                 break;
 
             case TipoObstaculo.Laser:
-                if(quantidadeDano <= 2) quantidadeDano = 2;
+                if (quantidadeDano <= 2) quantidadeDano = 2;
                 AtualizarLaser();
                 break;
             case TipoObstaculo.LaserSimples:
@@ -119,6 +122,10 @@ public class GerenciadorArmadilhas : MonoBehaviour
     public void TrocarEstadoColisorLaser()
     {
         if (colisorLaser != null) colisorLaser.enabled = !colisorLaser.enabled;
+
+        if (colisorLaser.enabled == true)
+            if (audioSource != null && somDisparo != null)
+                audioSource.PlayOneShot(somDisparo);
     }
 
     // --- SISTEMA DE DANO E MORTE ---
